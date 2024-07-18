@@ -17,17 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
+
       - name: Get next version
-        uses: technote-space/get-next-version-action@v1
-      - name: Create Tag
-        uses: actions/github-script@0.4.0
+        uses: MiguelRipoll23/get-next-version@v3.0.0
+        id: get-next-version
+
+      - uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${process.env.NEXT_VERSION}`,
-              sha: context.sha
-            })
+          tag: "${{ steps.get-next-version.outputs.next-version }}"
+          tag_exists_error: false
+          message: "Latest release"
