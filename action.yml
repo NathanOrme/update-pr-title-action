@@ -1,6 +1,10 @@
 name: Update PR Title Prefix
 description: "Updates the title prefix based on the type of branch and the JIRA number"
 
+branding:
+  icon: 'award'
+  color: 'black'
+
 inputs:
   jira_website:
     required: true
