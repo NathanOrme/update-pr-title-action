@@ -33,13 +33,9 @@ jobs:
 
       - name: Create Tag
         if: github.ref == 'refs/heads/main'
-        uses: actions/github-script@0.4.0
+        uses: rickstaa/action-create-tag@v1
+        id: "tag_create"
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${process.env.NEXT_VERSION}`,
-              sha: context.sha
-            })
+          tag: ${{ steps.version.outputs.next_version }}
+          tag_exists_error: false
+          message: "Latest release"
