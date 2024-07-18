@@ -1,0 +1,45 @@
+name: Update PR Title Prefix
+description: "Updates the title prefix based on the type of branch and the JIRA number"
+
+inputs:
+  jira_website:
+    required: true
+    default: https://www.example.com/browse/
+    description: "The Website to find the JIRA Ticket."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Branch Name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+
+    - name: Get Prefix of String
+      shell: bash
+      run: |
+        if [[ ${{ steps.extract_branch.outputs.branch }} == *"breaking"* ]]; then
+          answer='breaking'
+        elif [[ ${{ steps.extract_branch.outputs.branch }} == *"feature"* ]]; then
+          answer='feature'
+        else
+          answer='patch'
+        fi
+        echo "prefix=$answer" >> $GITHUB_OUTPUT
+      id: prefix
+
+    - name: Get Branch Name
+      shell: bash
+      run: |
+        answer="$(echo "${{ steps.extract_branch.outputs.branch }}" | sed -e "s/^${{ steps.prefix.outputs.prefix }}\///")"
+        echo "output=$answer" >> $GITHUB_OUTPUT
+      id: jira_ticket
+
+    - name: Update PR Title
+      uses: kognity/pr-update-action@v1.0.3
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        title-prefix: "${{ steps.prefix.outputs.prefix }}: ${{ steps.jira_ticket.outputs.output }}:"
+        body-concat-new-line: true
+        body-suffix: |
+          [Link to ticket: ${{ steps.jira_ticket.outputs.output }}](${{ inputs.jira_website }}${{ steps.jira_ticket.outputs.output }})
