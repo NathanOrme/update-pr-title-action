@@ -20,11 +20,11 @@ jobs:
         uses: actions/checkout@master
 
       - name: Get next version
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: technote-space/get-next-version-action@v1
 
       - name: Create Tag
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: actions/github-script@0.4.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
